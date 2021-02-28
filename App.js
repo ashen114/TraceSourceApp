@@ -24,15 +24,19 @@ import {
   ReloadInstructions,
 } from 'react-native/Libraries/NewAppScreen';
 
+import {Provider} from '@ant-design/react-native';
+
 import HomeScreen from './src/screens/HomeScreen/HomeScreen';
 
 const App: () => React$Node = () => {
   return (
     <>
-      <StatusBar barStyle="dark-content" />
-      <SafeAreaView>
-        <HomeScreen></HomeScreen>
-      </SafeAreaView>
+      <Provider>
+        <StatusBar barStyle="dark-content" />
+        <SafeAreaView>
+          <HomeScreen></HomeScreen>
+        </SafeAreaView>
+      </Provider>
     </>
   );
 };

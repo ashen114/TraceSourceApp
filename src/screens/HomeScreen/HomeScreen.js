@@ -13,6 +13,10 @@ import {
   Card,
   WhiteSpace,
   WingBlank,
+  ActionSheet,
+  Button,
+  Provider,
+  Toast,
 } from '@ant-design/react-native';
 import Contacts from 'react-native-contacts';
 import {
@@ -23,6 +27,7 @@ import {
   ContributionGraph,
   StackedBarChart,
 } from 'react-native-chart-kit';
+import Communications from 'react-native-communications';
 
 const HomeScreen = () => {
   const [contactList, setContactList] = useState([]);
@@ -39,29 +44,50 @@ const HomeScreen = () => {
       });
   }, []);
 
-  // const [echartOptions, setEchartOptions] = useState({
-  //   xAxis: {
-  //     type: 'category',
-  //     data: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
-  //   },
-  //   yAxis: {
-  //     type: 'value',
-  //   },
-  //   series: [
-  //     {
-  //       data: [820, 932, 901, 934, 1290, 1330, 1320],
-  //       type: 'line',
-  //     },
-  //   ],
-  // });
-  const data = [
-    [
-      [0, 1],
-      [1, 3],
-      [3, 7],
-      [4, 9],
-    ],
-  ];
+  // const [chartOptions, setChartOptions] = useState();
+
+  // useEffect(()=>{
+  //   setChartOptions([
+  //     [
+  //       [0, 1],
+  //       [1, 3],
+  //       [3, 7],
+  //       [4, 9],
+  //     ],
+  //   ];)
+  // }, [])
+
+  const showActionSheet = (phoneItem, item) => {
+    const BUTTONS = ['电话', '短信', '取消'];
+    console.info('showActionSheet');
+    ActionSheet.showActionSheetWithOptions(
+      {
+        title: 'Title',
+        message: 'Description',
+        options: BUTTONS,
+        cancelButtonIndex: 2,
+      },
+      (buttonIndex) => {
+        console.log('buttonIndex:', buttonIndex);
+        switch (+buttonIndex) {
+          case 0:
+            Communications.phonecall(phoneItem.number, true);
+            break;
+          case 1:
+            const smsText =
+              'Hi~' +
+              item.displayName +
+              '🎉,after a period of testing, the system is running well, and achieved the desired results.🎨';
+            Communications.text(phoneItem.number, smsText);
+            break;
+          default:
+            Toast.info('取消了', 1);
+            console.info('取消了');
+            break;
+        }
+      },
+    );
+  };
 
   return (
     <View>
@@ -131,7 +157,10 @@ const HomeScreen = () => {
                 <View>
                   {item.phoneNumbers.map((phoneItem, phoneIndex) => {
                     return (
-                      <Text key={phoneIndex} style={{marginLeft: 16}}>
+                      <Text
+                        key={phoneIndex}
+                        style={{marginLeft: 16}}
+                        onPress={() => showActionSheet(phoneItem, item)}>
                         {phoneItem.label}: {phoneItem.number}
                       </Text>
                     );

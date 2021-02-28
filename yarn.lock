@@ -5663,6 +5663,11 @@ react-native-collapsible@^1.5.2:
   dependencies:
     prop-types "^15.6.2"
 
+react-native-communications@^2.2.1:
+  version "2.2.1"
+  resolved "https://registry.npm.taobao.org/react-native-communications/download/react-native-communications-2.2.1.tgz#7883b56b20a002eeb790c113f8616ea8692ca795"
+  integrity sha1-eIO1ayCgAu63kMET+GFuqGksp5U=
+
 react-native-contacts@^6.0.4:
   version "6.0.4"
   resolved "https://registry.npm.taobao.org/react-native-contacts/download/react-native-contacts-6.0.4.tgz#b46a719c425f75144641c6141909069ae7f2e406"
