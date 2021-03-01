@@ -3,7 +3,7 @@
 
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.READ_CONTACTS" />
-
+    
     <application
       android:name=".MainApplication"
       android:label="@string/app_name"
@@ -23,6 +23,9 @@
         </intent-filter>
       </activity>
       <activity android:name="com.facebook.react.devsupport.DevSettingsActivity" />
+      <meta-data
+        android:name="com.amap.api.v2.apikey"
+        android:value="93a2a71b923b97aadddeeaf974fc7f5b" />
     </application>
 
 </manifest>

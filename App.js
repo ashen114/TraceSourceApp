@@ -34,11 +34,21 @@ const App: () => React$Node = () => {
       <Provider>
         <StatusBar barStyle="dark-content" />
         <SafeAreaView>
+          {/* <ScrollView
+            contentInsetAdjustmentBehavior="automatic"
+          style={styles.scrollView}> */}
           <HomeScreen></HomeScreen>
+          {/* </ScrollView> */}
         </SafeAreaView>
       </Provider>
     </>
   );
 };
+
+const styles = StyleSheet.create({
+  scrollView: {
+    backgroundColor: Colors.lighter,
+  },
+});
 
 export default App;
