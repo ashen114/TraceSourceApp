@@ -31,6 +31,8 @@ import {
 import Communications from 'react-native-communications';
 import {MapView} from 'react-native-amap3d';
 
+import {goToWorkLocation, pingZhouLocation} from '../../mock/locations';
+
 const HomeScreen = () => {
   // const [contactList, setContactList] = useState([]);
   // useLayoutEffect(() => {
@@ -115,27 +117,52 @@ const HomeScreen = () => {
     console.log('location:', location);
     console.log('center:', center);
     console.log('----------');
-    setLocation([...location, center]);
+    let loc = [].concat(location);
+    loc = loc.filter((item) => {
+      if (item.latitude && item.longitude) {
+        return item;
+      }
+    });
+    setLocation([...loc, center]);
     return () => {
       setLocation([]);
     };
   }, [center.latitude, center.longitude]);
 
-  const onItemPress = () => {
+  const onItemPress = async () => {
     console.log('---onItemPress---');
     // alert(JSON.stringify(location));
+    const data = await fetchData
+      .get(
+        'http://api.qingyunke.com/api.php?key=free&appid=0&msg=%E4%BD%A0%E5%A5%BD',
+      )
+      .catch((error) => {
+        console.log('error:', error);
+      });
+    console.info('data:', data);
     Clipboard.setString(JSON.stringify(location));
   };
+
+  const coordinates = new Array(200).fill(0).map((i) => ({
+    latitude: 39.5 + Math.random(),
+    longitude: 116 + Math.random(),
+  }));
+
   return (
     <View style={styles.container}>
       <MapView
         style={StyleSheet.absoluteFill}
-        locationEnabled
-        coordinate={{
-          latitude: 22.567055,
-          longitude: 113.873149,
-        }}
-        locationEnabled
+        mapType={0}
+        locationEnabled={true}
+        center={center}
+        zoomLevel={18}
+        showsCompass={true}
+        showsZoomControls={true}
+        showsLocationButton={true}
+        showsScale={true}
+        showsTraffic={true}
+        showsIndoorMap={true}
+        showsIndoorSwitch={true}
         locationInterval={10000}
         distanceFilter={10}
         onLocation={(center) => {
@@ -143,28 +170,25 @@ const HomeScreen = () => {
             setCenter(center);
           }
         }}>
-        <MapView.Polyline
+        <MapView.HeatMap
+          opacity={0.8}
+          radius={20}
+          coordinates={coordinates}></MapView.HeatMap>
+        {/* <MapView.Polyline
           width={10}
           color="rgba(255, 0, 0, 0.5)"
           coordinates={location}
-        />
-        {/* <MapView.MultiPoint
-          image="point"
-          points={location}
-          onItemPress={() => onItemPress()}
         /> */}
-        <MapView.Marker
+        {/* <MapView.Marker
           active
           coordinate={{
             latitude: 22.567055,
             longitude: 113.873149,
           }}>
           <View style={styles.infoWindow}>
-            <Text onPress={() => onItemPress()}>
-              {JSON.stringify(location)}
-            </Text>
+            <Text onPress={() => onItemPress()}>{JSON.stringify(center)}</Text>
           </View>
-        </MapView.Marker>
+        </MapView.Marker> */}
       </MapView>
     </View>
 

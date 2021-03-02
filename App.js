@@ -26,6 +26,8 @@ import {
 
 import {Provider} from '@ant-design/react-native';
 
+import Global from './src/utils/global';
+
 import HomeScreen from './src/screens/HomeScreen/HomeScreen';
 
 const App: () => React$Node = () => {
