@@ -32,275 +32,115 @@ import Communications from 'react-native-communications';
 import {MapView} from 'react-native-amap3d';
 
 import {goToWorkLocation, pingZhouLocation} from '../../mock/locations';
+import {fetchData} from '../../utils/fetch';
 
 const HomeScreen = () => {
-  // const [contactList, setContactList] = useState([]);
-  // useLayoutEffect(() => {
-  //   PermissionsAndroid.request(PermissionsAndroid.PERMISSIONS.READ_CONTACTS, {
-  //     title: 'Contacts',
-  //     message: 'This app would like to view your contacts.',
-  //     buttonPositive: 'Please accept bare mortal',
-  //   })
-  //     .then(() => Contacts.getAll())
-  //     .then((contacts) => {
-  //       console.log('contacts:', contacts);
-  //       setContactList(contacts);
-  //     });
-  // }, []);
-
-  // const [chartOptions, setChartOptions] = useState();
-
-  // useEffect(()=>{
-  //   setChartOptions([
-  //     [
-  //       [0, 1],
-  //       [1, 3],
-  //       [3, 7],
-  //       [4, 9],
-  //     ],
-  //   ];)
-  // }, [])
-
-  // const showActionSheet = (phoneItem, item) => {
-  //   const BUTTONS = ['电话', '短信', '取消'];
-  //   console.info('showActionSheet');
-  //   ActionSheet.showActionSheetWithOptions(
-  //     {
-  //       title: 'Title',
-  //       message: 'Description',
-  //       options: BUTTONS,
-  //       cancelButtonIndex: 2,
-  //     },
-  //     (buttonIndex) => {
-  //       console.log('buttonIndex:', buttonIndex);
-  //       switch (+buttonIndex) {
-  //         case 0:
-  //           Communications.phonecall(phoneItem.number, true);
-  //           break;
-  //         case 1:
-  //           const smsText =
-  //             'Hi~' +
-  //             item.displayName +
-  //             '🎉,after a period of testing, the system is running well, and achieved the desired results.🎨';
-  //           Communications.text(phoneItem.number, smsText);
-  //           break;
-  //         default:
-  //           Toast.info('取消了', 1);
-  //           console.info('取消了');
-  //           break;
-  //       }
-  //     },
-  //   );
-  // };
-
-  const [location, setLocation] = useState([]);
-  useLayoutEffect(() => {
-    PermissionsAndroid.request(
-      PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
-      {
-        title: '位置',
-        message: '要读取你的位置.',
-        buttonPositive: '行吧',
-      },
-    ).then((isPermission) => {
-      if (isPermission === 'granted') {
-        console.log('isPermission:', isPermission);
-      }
-    });
-  }, []);
-  const [center, setCenter] = useState({
-    latitude: 22.567055,
-    longitude: 113.873149,
+  const [chartOptions, setChartOptions] = useState({
+    labels: [''],
+    datasets: [0],
   });
-  useEffect(() => {
-    console.log('----------');
-    console.log('location:', location);
-    console.log('center:', center);
-    console.log('----------');
-    let loc = [].concat(location);
-    loc = loc.filter((item) => {
-      if (item.latitude && item.longitude) {
-        return item;
-      }
-    });
-    setLocation([...loc, center]);
-    return () => {
-      setLocation([]);
-    };
-  }, [center.latitude, center.longitude]);
 
   const onItemPress = async () => {
     console.log('---onItemPress---');
-    // alert(JSON.stringify(location));
-    const data = await fetchData
-      .get(
-        'http://api.qingyunke.com/api.php?key=free&appid=0&msg=%E4%BD%A0%E5%A5%BD',
+    const updateData = await fetchData
+      .put(
+        'https://ad74yq1l.lc-cn-n1-shared.com/1.1/classes/Test/603f9ebbf8ac3a24dee42f8a',
+        {
+          labels: ['周一', '周二', '周三', '周四', '周五'],
+          datasets: [
+            Math.random() * 100,
+            Math.random() * 100,
+            Math.random() * 100,
+            Math.random() * 100,
+            Math.random() * 100,
+            Math.random() * 100,
+          ],
+        },
       )
       .catch((error) => {
         console.log('error:', error);
       });
+
+    let nowTime = new Date();
+    console.info('-------------------START--------------------');
+    console.info('------------' + nowTime + '------------');
+
+    console.info('updateData:', updateData);
+
+    const data = await fetchData
+      .get(
+        'https://ad74yq1l.lc-cn-n1-shared.com/1.1/classes/Test/603f9ebbf8ac3a24dee42f8a',
+      )
+      .catch((error) => {
+        console.log('error:', error);
+      });
+
     console.info('data:', data);
-    Clipboard.setString(JSON.stringify(location));
+    console.info('-----------------END--------------------');
+    /**
+     * 如果get请求不知道某个objectid，会返回data.results: [{...}]否则只返回data: {...}
+     */
+    if (data) {
+      let {labels, datasets} = data;
+      setChartOptions({
+        labels,
+        datasets,
+      });
+    }
   };
 
-  const coordinates = new Array(200).fill(0).map((i) => ({
-    latitude: 39.5 + Math.random(),
-    longitude: 116 + Math.random(),
-  }));
-
   return (
-    <View style={styles.container}>
-      <MapView
-        style={StyleSheet.absoluteFill}
-        mapType={0}
-        locationEnabled={true}
-        center={center}
-        zoomLevel={18}
-        showsCompass={true}
-        showsZoomControls={true}
-        showsLocationButton={true}
-        showsScale={true}
-        showsTraffic={true}
-        showsIndoorMap={true}
-        showsIndoorSwitch={true}
-        locationInterval={10000}
-        distanceFilter={10}
-        onLocation={(center) => {
-          if (center != null) {
-            setCenter(center);
-          }
-        }}>
-        <MapView.HeatMap
-          opacity={0.8}
-          radius={20}
-          coordinates={coordinates}></MapView.HeatMap>
-        {/* <MapView.Polyline
-          width={10}
-          color="rgba(255, 0, 0, 0.5)"
-          coordinates={location}
-        /> */}
-        {/* <MapView.Marker
-          active
-          coordinate={{
-            latitude: 22.567055,
-            longitude: 113.873149,
-          }}>
-          <View style={styles.infoWindow}>
-            <Text onPress={() => onItemPress()}>{JSON.stringify(center)}</Text>
-          </View>
-        </MapView.Marker> */}
-      </MapView>
+    <View>
+      <NoticeBar mode="closable" onPress={() => alert('will close')}>
+        Notice: The arrival time of incomes and transfers of Yu 'E Bao will be
+        delayed during National Day.
+      </NoticeBar>
+      <WhiteSpace size="lg" />
+      <Button type="primary" onPress={() => onItemPress()}>
+        Test
+      </Button>
+      <WhiteSpace size="lg" />
+      {/* 图表 */}
+      <WingBlank size="lg">
+        <Text>Bezier Line Chart</Text>
+        <LineChart
+          data={{
+            labels: chartOptions.labels,
+            datasets: [
+              {
+                data: chartOptions.datasets,
+              },
+            ],
+          }}
+          width={Dimensions.get('window').width - 30} // from react-native
+          height={220}
+          yAxisLabel="$"
+          yAxisSuffix="k"
+          yAxisInterval={1} // optional, defaults to 1
+          chartConfig={{
+            backgroundColor: '#e26a00',
+            backgroundGradientFrom: '#fb8c00',
+            backgroundGradientTo: '#ffa726',
+            decimalPlaces: 2, // optional, defaults to 2dp
+            color: (opacity = 1) => `rgba(255, 255, 255, ${opacity})`,
+            labelColor: (opacity = 1) => `rgba(255, 255, 255, ${opacity})`,
+            style: {
+              borderRadius: 16,
+            },
+            propsForDots: {
+              r: '6',
+              strokeWidth: '2',
+              stroke: '#ffa726',
+            },
+          }}
+          bezier
+          style={{
+            marginVertical: 8,
+            borderRadius: 16,
+          }}
+        />
+      </WingBlank>
     </View>
-
-    // <View>
-    //   {/* <NoticeBar mode="closable" onPress={() => alert('will close')}>
-    //     Notice: The arrival time of incomes and transfers of Yu 'E Bao will be
-    //     delayed during National Day.
-    //   </NoticeBar> */}
-    //   {/* <WhiteSpace size="lg" /> */}
-    //   {/* 图表 */}
-    //   {/* <WingBlank size="lg">
-    //     <Text>Bezier Line Chart</Text>
-    //     <LineChart
-    //       data={{
-    //         labels: ['January', 'February', 'March', 'April', 'May', 'June'],
-    //         datasets: [
-    //           {
-    //             data: [
-    //               Math.random() * 100,
-    //               Math.random() * 100,
-    //               Math.random() * 100,
-    //               Math.random() * 100,
-    //               Math.random() * 100,
-    //               Math.random() * 100,
-    //             ],
-    //           },
-    //         ],
-    //       }}
-    //       width={Dimensions.get('window').width - 30} // from react-native
-    //       height={220}
-    //       yAxisLabel="$"
-    //       yAxisSuffix="k"
-    //       yAxisInterval={1} // optional, defaults to 1
-    //       chartConfig={{
-    //         backgroundColor: '#e26a00',
-    //         backgroundGradientFrom: '#fb8c00',
-    //         backgroundGradientTo: '#ffa726',
-    //         decimalPlaces: 2, // optional, defaults to 2dp
-    //         color: (opacity = 1) => `rgba(255, 255, 255, ${opacity})`,
-    //         labelColor: (opacity = 1) => `rgba(255, 255, 255, ${opacity})`,
-    //         style: {
-    //           borderRadius: 16,
-    //         },
-    //         propsForDots: {
-    //           r: '6',
-    //           strokeWidth: '2',
-    //           stroke: '#ffa726',
-    //         },
-    //       }}
-    //       bezier
-    //       style={{
-    //         marginVertical: 8,
-    //         borderRadius: 16,
-    //       }}
-    //     />
-    //   </WingBlank> */}
-    //   <WhiteSpace size="lg" />
-    //   <Text>地图：</Text>
-    //   {/* <MapView
-    //     style={StyleSheet.absoluteFill}
-    //     center={{
-    //       latitude: 39.91095,
-    //       longitude: 116.37296,
-    //     }}
-    //   /> */}
-    //   <MapView
-    //     style={StyleSheet.absoluteFill}
-    //     locationEnabled
-    //     onLocation={({nativeEvent}) => {
-    //       console.log('nativeEvent:', nativeEvent);
-    //       if (nativeEvent) {
-    //         console.log(`${nativeEvent.latitude}, ${nativeEvent.longitude}`);
-    //       }
-    //     }}
-    //   />
-    //   {/* <WhiteSpace size="lg" /> */}
-    //   {/* 通讯录 */}
-    //   {/* <WingBlank size="lg">
-    //     {contactList.map((item, index) => {
-    //       return (
-    //         <Card key={index}>
-    //           <Card.Header
-    //             title={item.displayName}
-    //             thumbStyle={{width: 30, height: 30}}
-    //             thumb={
-    //               item.thumbnailPath != '' ? item.thumbnailPath : undefined
-    //             }
-    //             extra=""
-    //           />
-    //           <Card.Body>
-    //             <View>
-    //               {item.phoneNumbers.map((phoneItem, phoneIndex) => {
-    //                 return (
-    //                   <Text
-    //                     key={phoneIndex}
-    //                     style={{marginLeft: 16}}
-    //                     onPress={() => showActionSheet(phoneItem, item)}>
-    //                     {phoneItem.label}: {phoneItem.number}
-    //                   </Text>
-    //                 );
-    //               })}
-    //             </View>
-    //           </Card.Body>
-    //           <Card.Footer
-    //             content="footer content"
-    //             extra="footer extra content"
-    //           />
-    //         </Card>
-    //       );
-    //     })}
-    //   </WingBlank> */}
-    // </View>
   );
 };
 

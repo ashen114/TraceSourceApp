@@ -5683,6 +5683,11 @@ react-native-contacts@^6.0.4:
   resolved "https://registry.npm.taobao.org/react-native-contacts/download/react-native-contacts-6.0.4.tgz#b46a719c425f75144641c6141909069ae7f2e406"
   integrity sha1-tGpxnEJfdRRGQcYUGQkGmufy5AY=
 
+react-native-md5@^1.0.0:
+  version "1.0.0"
+  resolved "https://registry.npm.taobao.org/react-native-md5/download/react-native-md5-1.0.0.tgz#2320be24d674938ae5ef4f492698edbbfa0e0205"
+  integrity sha1-IyC+JNZ0k4rl709JJpjtu/oOAgU=
+
 react-native-modal-popover@^0.0.12:
   version "0.0.12"
   resolved "https://registry.npm.taobao.org/react-native-modal-popover/download/react-native-modal-popover-0.0.12.tgz#5c0b5e9e0323490c3c5867821fc94b6582bfa3dc"
