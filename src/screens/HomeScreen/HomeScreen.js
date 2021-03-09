@@ -5,6 +5,10 @@ import {
   View,
   PermissionsAndroid,
   Dimensions,
+  Image,
+  TouchableOpacity,
+  Alert,
+  ToastAndroid,
 } from 'react-native';
 import Clipboard from '@react-native-clipboard/clipboard';
 import {
@@ -30,64 +34,67 @@ import {
 } from 'react-native-chart-kit';
 import Communications from 'react-native-communications';
 import {MapView} from 'react-native-amap3d';
-
+import {RNCamera} from 'react-native-camera';
 import {goToWorkLocation, pingZhouLocation} from '../../mock/locations';
 import {fetchData} from '../../utils/fetch';
+import RNFS from 'react-native-fs';
+
+import {pictureList} from './../../mock/pictureList';
 
 const HomeScreen = () => {
-  const [chartOptions, setChartOptions] = useState({
-    labels: [''],
-    datasets: [0],
-  });
+  const imgUrl =
+    'http://lc-ad74yq1l.cn-n1.lcfile.com/b665853a3299e1a312c5.png/VRChat_1920x1080_2021-01-01_00-00-05.072.png';
 
-  const onItemPress = async () => {
-    console.log('---onItemPress---');
-    const updateData = await fetchData
-      .put(
-        'https://ad74yq1l.lc-cn-n1-shared.com/1.1/classes/Test/603f9ebbf8ac3a24dee42f8a',
-        {
-          labels: ['周一', '周二', '周三', '周四', '周五'],
-          datasets: [
-            Math.random() * 100,
-            Math.random() * 100,
-            Math.random() * 100,
-            Math.random() * 100,
-            Math.random() * 100,
-            Math.random() * 100,
-          ],
-        },
-      )
-      .catch((error) => {
-        console.log('error:', error);
-      });
+  const [picList, setPicList] = useState([]);
 
-    let nowTime = new Date();
-    console.info('-------------------START--------------------');
-    console.info('------------' + nowTime + '------------');
+  useEffect(() => {
+    let picPathList = pictureList.map((item) => {
+      return 'file://' + item.path;
+    });
+    console.log('picPathList:', picPathList);
+    setPicList(picPathList);
+  }, []);
 
-    console.info('updateData:', updateData);
+  const takePicture = async (camera) => {
+    if (camera) {
+      try {
+        const granted = await PermissionsAndroid.request(
+          PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE,
+          {
+            title: 'Cool Photo App Camera Permission',
+            message:
+              'Cool Photo App needs access to your camera ' +
+              'so you can take awesome pictures.',
+            buttonNeutral: 'Ask Me Later',
+            buttonNegative: 'Cancel',
+            buttonPositive: 'OK',
+          },
+        );
+        if (granted === PermissionsAndroid.RESULTS.GRANTED) {
+          console.log('You can use the camera');
 
-    const data = await fetchData
-      .get(
-        'https://ad74yq1l.lc-cn-n1-shared.com/1.1/classes/Test/603f9ebbf8ac3a24dee42f8a',
-      )
-      .catch((error) => {
-        console.log('error:', error);
-      });
-
-    console.info('data:', data);
-    console.info('-----------------END--------------------');
-    /**
-     * 如果get请求不知道某个objectid，会返回data.results: [{...}]否则只返回data: {...}
-     */
-    if (data) {
-      let {labels, datasets} = data;
-      setChartOptions({
-        labels,
-        datasets,
-      });
+          const data = await camera.takePictureAsync();
+          console.warn('picture url ', data.uri);
+        } else {
+          console.log('Camera permission denied');
+        }
+      } catch (err) {
+        console.warn(err);
+      }
     }
   };
+
+  const PendingView = () => (
+    <View
+      style={{
+        flex: 1,
+        backgroundColor: 'lightgreen',
+        justifyContent: 'center',
+        alignItems: 'center',
+      }}>
+      <Text>Waiting</Text>
+    </View>
+  );
 
   return (
     <View>
@@ -96,50 +103,58 @@ const HomeScreen = () => {
         delayed during National Day.
       </NoticeBar>
       <WhiteSpace size="lg" />
-      <Button type="primary" onPress={() => onItemPress()}>
-        Test
-      </Button>
+      {/* 'file:///data/user/0/com.tracesourceapp/cache/Camera/034fb64d-328a-40dc-a199-01e6e4020a4e.jpg', */}
+      <Image
+        source={{
+          uri:
+            'file:///data/user/0/com.tracesourceapp/cache/Camera/76c437a4-ca8b-4bd3-b162-eb95418b0def.jpg',
+        }}
+        style={{
+          width: Dimensions.get('window').width - 10,
+          height: 200,
+          margin: 5,
+        }}
+      />
+      <View>
+        {picList.map((path, index) => {
+          return (
+            <Image
+              key={index}
+              source={{
+                uri: path,
+              }}
+              style={{
+                width: Dimensions.get('window').width - 10,
+                height: 200,
+                margin: 5,
+              }}
+            />
+          );
+        })}
+      </View>
       <WhiteSpace size="lg" />
-      {/* 图表 */}
-      <WingBlank size="lg">
-        <Text>Bezier Line Chart</Text>
-        <LineChart
-          data={{
-            labels: chartOptions.labels,
-            datasets: [
-              {
-                data: chartOptions.datasets,
-              },
-            ],
+      <View style={styles.camera}>
+        <RNCamera style={styles.preview} type={RNCamera.Constants.Type.back}>
+          {({camera, status, recordAudioPermissionStatus}) => {
+            if (status !== 'READY') return <PendingView />;
+            return (
+              <View
+                style={{
+                  flex: 0,
+                  flexDirection: 'row',
+                  justifyContent: 'center',
+                }}>
+                <TouchableOpacity
+                  onPress={() => takePicture(camera)}
+                  style={styles.capture}>
+                  <Text style={{fontSize: 14}}> SNAP </Text>
+                </TouchableOpacity>
+              </View>
+            );
           }}
-          width={Dimensions.get('window').width - 30} // from react-native
-          height={220}
-          yAxisLabel="$"
-          yAxisSuffix="k"
-          yAxisInterval={1} // optional, defaults to 1
-          chartConfig={{
-            backgroundColor: '#e26a00',
-            backgroundGradientFrom: '#fb8c00',
-            backgroundGradientTo: '#ffa726',
-            decimalPlaces: 2, // optional, defaults to 2dp
-            color: (opacity = 1) => `rgba(255, 255, 255, ${opacity})`,
-            labelColor: (opacity = 1) => `rgba(255, 255, 255, ${opacity})`,
-            style: {
-              borderRadius: 16,
-            },
-            propsForDots: {
-              r: '6',
-              strokeWidth: '2',
-              stroke: '#ffa726',
-            },
-          }}
-          bezier
-          style={{
-            marginVertical: 8,
-            borderRadius: 16,
-          }}
-        />
-      </WingBlank>
+        </RNCamera>
+      </View>
+      <WhiteSpace size="lg" />
     </View>
   );
 };
@@ -150,12 +165,26 @@ const styles = StyleSheet.create({
   container: {
     height: Dimensions.get('window').height,
   },
-  infoWindow: {
-    backgroundColor: '#8bc34a',
-    padding: 10,
-    borderRadius: 10,
-    elevation: 4,
-    borderWidth: 2,
-    borderColor: '#689F38',
+  picture: {
+    width: Dimensions.get('window').width,
+    height: 100,
+  },
+  camera: {
+    height: 100,
+    width: 100,
+  },
+  preview: {
+    flex: 1,
+    justifyContent: 'flex-end',
+    alignItems: 'center',
+  },
+  capture: {
+    flex: 0,
+    backgroundColor: '#fff',
+    borderRadius: 5,
+    padding: 15,
+    paddingHorizontal: 20,
+    alignSelf: 'center',
+    margin: 20,
   },
 });

@@ -23,9 +23,11 @@
     "react": "16.13.1",
     "react-native": "0.63.4",
     "react-native-amap3d": "^2.0.3",
+    "react-native-camera": "^3.43.0",
     "react-native-chart-kit": "^6.11.0",
     "react-native-communications": "^2.2.1",
     "react-native-contacts": "^6.0.4",
+    "react-native-fs": "^2.16.6",
     "react-native-md5": "^1.0.0",
     "react-native-svg": "^12.1.0"
   },

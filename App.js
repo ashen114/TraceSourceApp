@@ -36,11 +36,11 @@ const App: () => React$Node = () => {
       <Provider>
         <StatusBar barStyle="dark-content" />
         <SafeAreaView>
-          {/* <ScrollView
+          <ScrollView
             contentInsetAdjustmentBehavior="automatic"
-          style={styles.scrollView}> */}
-          <HomeScreen></HomeScreen>
-          {/* </ScrollView> */}
+            style={styles.scrollView}>
+            <HomeScreen></HomeScreen>
+          </ScrollView>
         </SafeAreaView>
       </Provider>
     </>
